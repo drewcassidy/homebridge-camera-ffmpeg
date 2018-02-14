@@ -233,23 +233,23 @@ FFMPEG.prototype.handleStreamRequest = function(request) {
     if (requestType == "start") {
       var sessionInfo = this.pendingSessions[sessionIdentifier];
       if (sessionInfo) {
-        var width = 1280;
-        var height = 720;
+               var width = 720;
+        var height = 7200;
         var fps = 30;
-        var bitrate = 300;
+        var bitrate = 900;
         var vcodec = this.vcodec || 'libx264';
 
         let videoInfo = request["video"];
         if (videoInfo) {
-          width = videoInfo["width"];
-          height = videoInfo["height"];
+          //width = videoInfo["width"];
+          //height = videoInfo["height"];
 
           let expectedFPS = videoInfo["fps"];
           if (expectedFPS < fps) {
             fps = expectedFPS;
           }
 
-          bitrate = videoInfo["max_bit_rate"];
+        //  bitrate = videoInfo["max_bit_rate"];
         }
 
         let targetAddress = sessionInfo["address"];
@@ -258,7 +258,7 @@ FFMPEG.prototype.handleStreamRequest = function(request) {
         let videoSsrc = sessionInfo["video_ssrc"];
 
         let ffmpegCommand = this.ffmpegSource + ' -threads 0 -vcodec '+vcodec+' -an -pix_fmt yuv420p -r '+
-        fps +' -f rawvideo -tune zerolatency -vf scale='+ width +':'+ height +' -b:v '+ bitrate +'k -bufsize '+
+        fps +' -f rawvideo -tune zerolatency -vf crop=out_w=in_h,crop=in_h,transpose=1 -b:v '+ bitrate +'k -bufsize '+
          bitrate +'k -payload_type 99 -ssrc '+ videoSsrc +' -f rtp -srtp_out_suite AES_CM_128_HMAC_SHA1_80 -srtp_out_params '+
          videoKey.toString('base64')+' srtp://'+targetAddress+':'+targetVideoPort+'?rtcpport='+targetVideoPort+
          '&localrtcpport='+targetVideoPort+'&pkt_size=1378';
